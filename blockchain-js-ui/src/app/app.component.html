@@ -1,0 +1,354 @@
+<nav id='blockchain-nav' role="navigation" aria-label="main navigation">
+  <div style='display:flex; flex-flow: row nowrap; align-items: baseline;' (click)="toggleExpandedUi()">
+    <div class="level-item">
+      <h1 class='title'>Blockchain JS</h1>
+    </div>
+    <div class='level-item' style='width:2em;'></div>
+    <div class='level-item'>
+      <h2 class='subtitle'> {{state.registeredPseudo}}</h2>
+    </div>
+  </div>
+  <div>
+    <a (click)='toggleFullScreen()' class='is-small' style='padding-right:1em;'>
+      <span class="icon is-small">
+        <i class="mdi mdi-fullscreen"></i>
+      </span>
+    </a>
+  </div>
+</nav>
+
+<section #mainElement id='blockchain-main' class='section'>
+  <div class="tabs" [class.expanded]="expandedUi">
+    <ul>
+      <li [class.is-active]='selectedTab==5' (click)='selectTab(5)'>
+        <a>Production</a>
+      </li>
+      <li [class.is-active]='selectedTab==6' (click)='selectTab(6)'>
+        <a>WoF</a>
+      </li>
+      <li [class.is-active]='selectedTab==1' (click)='selectTab(1)'>
+        <a>Messages</a>
+      </li>
+      <li [class.is-active]='selectedTab==2' (click)='selectTab(2)'>
+        <a>Peers</a>
+      </li>
+      <li [class.is-active]='selectedTab==3' (click)='selectTab(3)'>
+        <a>Advanced</a>
+      </li>
+      <li [class.is-active]='selectedTab==4' (click)='selectTab(4)'>
+        <a>Logs</a>
+      </li>
+    </ul>
+  </div>
+
+  <div *ngIf='!state.registeredPseudo'>
+    <div class="container welcome">
+      <!--<h2>Bonjour et bienvenue !</h2>
+      <p>Vous allez participer à une expérience <i>"blockchain"</i>, nous vous présenterons très bientôt les instructions
+        d'utilisation.</p>
+      <p>Merci et bons blocs !</p>
+      <br><br><br>-->
+      <h2>
+        Hi and welcome !
+      </h2>
+      <p>
+        This software is a metaphore of the supply chain through the use of blockchain technology.
+      </p>
+      <p>
+        Your internet browser is becoming a blockchain node with smart contract and cryptography technologies.
+        This means that :
+        <ul>
+          <li>There is <b>no central server</b>, your browser is in possession of the same data as all other nodes (and
+            connected to others by peer-to-peer technology),</li>
+          <li>Data is secured by the group and not a central third party : <b>everything is transparent and verifiable</b>
+            by everybody.</li>
+          <li>The rules of the game are applied and controlled by you and every connected actor, <b>no one can cheat or
+              hide</b> <i>(as long as there are no exploitable bugs in the software)</i>.
+            Especially, retributions are applied <b>automatically and securely</b>.</li>
+        </ul>
+        <p>
+          The metaphore of the supply chain is this :
+          <ul>
+            <li>When set up, you will get some pixels and emojis in your inventory.</li>
+            <li>You will draw artworks from pixels, emojis and other people's artworks.</li>
+            <li>People can start to use your artwork in theirs.</li>
+            <li>You can change your artwork until you <i>validate</i> it.</li>
+            <li>But you cannot validate it if your artwork uses another artwork that is not validated.</li>
+            <li>When you validate your artwork, you and others get retributions :
+              <ul>
+                <li>Each pixel or emoji you use will be given back in the form of other pixels and emojis (notice that
+                  you don't loose any items, because your <i>creativity</i> has got no limit).</li>
+                <li>Each pixel or emoji coming from other's artworks give the author a random pixel or emoji back. This
+                  is the metaphor of the <i>copyright</i>.</li>
+              </ul>
+              Notice that retributions are applied and controlled by the blockchain algorithm, there can be <b>no cheat
+                here</b> !
+            </li>
+          </ul>
+          This means that you never loose creating something or using someone else's creation, and you gain revenues
+          when others use your work !
+          <br><br><br>
+          <div class="field has-addons" *ngIf='state.user && state.hasIdentityContract'>
+            <p class="control is-expanded">
+              <input #pseudo class='input' type="text" placeholder='Choose a pseudo' (keyup.enter)='setPseudo(pseudo.value)'>
+            </p>
+            <p class="control">
+              <button (click)='setPseudo(pseudo.value)' class='button has-icon-left'>
+                Go with this!
+              </button>
+            </p>
+          </div>
+    </div>
+  </div>
+
+  <div *ngIf='selectedTab==1'>
+    <div class="container is-fluid is-widescreen">
+      <div class="field has-addons">
+        <p class="control is-expanded">
+          <input #minedData class='input' type="text" placeholder='Message to send to blockchain' (keyup.enter)='mine(minedData.value) && minedData.value=""'>
+        </p>
+        <div class="control has-icons-left">
+          <span class="select">
+            <select [(ngModel)]='miningDifficulty'>
+              <option value=1>1</option>
+              <option value=50>50</option>
+              <option value=100>100</option>
+              <option value=1000>1000</option>
+            </select>
+          </span>
+          <div class="icon is-small is-left">
+            <i class="mdi mdi-star"></i>
+          </div>
+        </div>
+        <p class="control">
+          <button (click)='mine(minedData.value) && minedData.value=""' [disabled]='isMining' class='button has-icon-left'>
+            <i class='mdi mdi-cloud-upload'></i> Mine
+          </button>
+        </p>
+      </div>
+      <div class="field is-grouped is-grouped-centered">
+        <div class="control">
+          <label for='encryptMessages'>Encrypt messages</label>
+          <input id='encryptMessages' class='checkbox' type="checkbox" [(ngModel)]='encryptMessages'>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf='state.messages' class="container is-fluid">
+      <div *ngFor="let item of state.messages">
+        <div *ngIf='(!item.id) || (!item.message) || (!item.author)'>{{item | json}}</div>
+        <div *ngIf='item.id && item.message && item.author'>
+          <span *ngIf='item?.encrypted' class="icon">
+            <i class="mdi mdi-lock"></i>
+          </span>
+          <span style='font-size:80%;'>{{item?.author}}:&nbsp;&nbsp;</span>
+          <span *ngIf='!(item?.encrypted)'>{{item?.message}}</span>
+          <span *ngIf='item?.encrypted'>{{decypher(item.message)}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf='selectedTab==2'>
+    <div class="container is-fluid" *ngIf="state.fullNode.peerInfos.length">
+      <div class="box">
+        <h2 class='subtitle'>Connected peers</h2>
+        <ul>
+          <li *ngFor='let peerInfo of state.fullNode.peerInfos'>
+            <span>{{peerInfo.description}}</span>
+            <button class='button has-icon-left' (click)='disconnectPeer(peerInfo)'>
+              <span class="icon">
+                <i class="mdi mdi-delete"></i>
+              </span>
+              <span>disconnect</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <br />
+    </div>
+
+    <div class="container is-fluid">
+      <div class="box">
+        <h2 class="subtitle">Manual connection</h2>
+        <h2 class='subtitle'>Add a peer</h2>
+        <div class="field">
+          <label class="label">Host name</label>
+          <input type="text" class='input' #peerHost value="blockchain-js.com">
+        </div>
+        <div class="field">
+          <label class="label">Port</label>
+          <input type="text" class='input' #peerPort value="443">
+        </div>
+        <div class="field">
+          <label class="label">Secure</label>
+          <input type="checkbox" class='checkbox' #peerSecure value='peerSecure' checked>
+        </div>
+        <div class="field">
+          <button (click)='addPeer(peerHost.value, peerPort.value, peerSecure.checked)' class='button'>connect</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf='selectedTab==3'>
+    <div class="container is-fluid">
+      <div class="box">
+        <h2 class="subtitle">Supply Chain branch</h2>
+
+        <div class="field">
+          <label class="label">Current branch</label>
+          <div class="select">
+            <select [(ngModel)]='supplyChainBranch'>
+              <option *ngFor='let branch of state.supplyChainBranches' value='{{branch}}'>{{branch}}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br />
+    <div class="container is-fluid">
+      <div class="box">
+        <h2 class='subtitle'>Privacy</h2>
+        <div class="field">
+          <label class='label'>My encryption key</label>
+          <input [(ngModel)]='encryptionKey' class='input' type="text" placeholder='My encryption key'>
+        </div>
+        <label class="label">Know others encryption keys</label>
+        <div class="field has-addons">
+          <div class="control">
+            <input #newEncryptionKey class='input' type="text" placeholder='New key' (keyup.enter)='addEncryptionKey(newEncryptionKey.value) && newEncryptionKey.value=""'>
+          </div>
+          <div class="control">
+            <button (click)='addEncryptionKey(newEncryptionKey.value) && newEncryptionKey.value=""' class="button is-primary">Add</button>
+          </div>
+        </div>
+        <div *ngFor='let key of otherEncryptionKeys'>
+          <button class='button is-warning' (click)='removeEncryptionKey(key)'>
+            <span class="icon">
+              <i class="mdi mdi-delete"></i>
+            </span>
+          </button>
+          <span>{{key}}</span>
+        </div>
+      </div>
+    </div>
+    <br />
+    <div class="container is-fluid">
+      <div class="box">
+        <h2 class='subtitle'>Branch management</h2>
+        <div class="field">
+          <label class="label">Current branch</label>
+          <div class="select">
+            <select [(ngModel)]='selectedBranch'>
+              <option *ngFor='let branch of state.branches' value='{{branch}}'>{{branch}}</option>
+            </select>
+          </div>
+        </div>
+        <div *ngIf='state.state[selectedBranch]'>
+          <div *ngIf='state.state[selectedBranch].head'>
+            head block id: {{state.state[selectedBranch].headBlockMetadata.blockId}}
+            <br /> valid: {{state.state[selectedBranch].headBlockMetadata.isValid}}
+            <br /> previous blocks: {{state.state[selectedBranch].headBlockMetadata?.previousBlockIds | json}}
+            <br /> confidence: {{state.state[selectedBranch].headBlockMetadata.confidence}}
+            <br /> blockCount: {{state.state[selectedBranch].headBlockMetadata.blockCount}}
+          </div>
+        </div>
+      </div>
+    </div>
+    <br />
+    <div class="container is-fluid" *ngIf="encryptionKey.endsWith('stacklabs')">
+      <div class="box">
+        <h2 class='subtitle'>Automining</h2>
+        <div class="field">
+          <label class='label'>Message</label>
+          <input #minedData class='input' type="text" value='Some data to mine...'>
+        </div>
+        <div class="field">
+          <label class='label'>Difficulty</label>
+          <input #miningDifficulty type="number" class="input" value='100' step="10" min="1" size="5" />
+        </div>
+        <div class="field">
+          <label class='label'>Timer</label>
+          <input #automineTimer type="number" class='input' value='2000' min='1' size='5' />
+        </div>
+
+        <div class="field">
+          <button (click)='toggleAutomine(minedData.value, automineTimer.value)' class='button is-link'>{{autoMining ?
+            'disable' : 'enable'}} auto-mining</button>
+        </div>
+      </div>
+      <br />
+    </div>
+    <div class="container is-fluid">
+      <div class="box">
+        <h2 class='subtitle'>Miscellanous</h2>
+        <div class="field">
+          <label for='autoSave' class="label">Auto save blocks and parameters</label>
+          <input id='autoSave' type="checkbox" [(ngModel)]='autoSave'>
+        </div>
+        <div class="field">
+          <label for='autoConnectNaturalPeer' class="label">Auto-connect to natural peer</label>
+          <input id='autoConnectNaturalPeer' type="checkbox" [(ngModel)]='autoConnectNaturalPeer'>
+        </div>
+        <div class="field">
+          <button class="button" (click)='clearStorageAndReload()'>Clear data and reload</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf='selectedTab==4'>
+    <div class="container is-fluid">
+      <div class="box">
+        <h2 class='subtitle'>Logs</h2>
+        <div *ngFor="let log of state.logs">{{log}}</div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf='selectedTab==5'>
+    <div class="container is-fluid">
+      <supply-chain></supply-chain>
+    </div>
+    <div class="container" style="text-align: center;">
+      Available branches :
+      <button *ngFor='let branch of state.supplyChainBranches' class='button' [class.is-primary]='branch == supplyChainBranch'
+        (click)='setSummplyChainBranch(branch)'>{{
+        branch }}</button>
+    </div>
+  </div>
+
+  <div *ngIf='selectedTab==6'>
+    <div class="container" style="text-align: center;">
+      Available branches :
+      <button *ngFor='let branch of state.supplyChainBranches' class='button' [class.is-primary]='branch == supplyChainBranch'
+        (click)='setSummplyChainBranch(branch)'>{{
+        branch }}</button>
+    </div>
+    <div class="container is-fluid">
+      <wall-of-fame></wall-of-fame>
+    </div>
+  </div>
+</section>
+
+<footer id='blockchain-footer' class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p style='margin-bottom: 0;'>
+        <strong>Blockchain JS</strong> by
+        <a href='https://github.com/ltearno'>Arnaud</a> <a href="https://fr.linkedin.com/in/lteconsulting">Tournier</a>
+        at
+        <a href="https://stack-labs.com">Stack Labs</a>
+      </p>
+      <p>
+        <span *ngIf='state.isLoading()' style='color:green;'>Loading - </span>
+        <!--<span *ngIf='!state.fullNode.node.blockCount'>Empty blockchain</span>
+        <span *ngIf='state.fullNode.node.blockCount'>{{state.fullNode.node.blockCount}} blocks</span>-->
+        <span *ngIf='state.masterHead'>{{state.masterHead}}</span>
+        <span *ngIf='autoMining' style='color:green;'> - auto-mining enabled</span>
+      </p>
+    </div>
+  </div>
+</footer>

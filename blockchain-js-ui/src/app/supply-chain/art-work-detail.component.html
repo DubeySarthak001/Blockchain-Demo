@@ -1,0 +1,33 @@
+<div>
+    <p class="title is-4">{{ artWork.title }}</p>
+    <div class="subtitle">
+        <p class="is-6">Author: <b>{{ pseudoOrId(artWork.author) }}</b></p>
+        <p class="is-6">PartID: {{ artWork.serialNumber }}</p>
+    </div>
+</div>
+
+<art-work-icon [artWorkId]='"artwork-"+artWork.id' [disablePaintCache]='true' [filterAuthor]='filterAuthor'></art-work-icon>
+
+<div>
+    <button [disabled]='!hasNext()' class='button' (click)='next()'>👈</button>
+    <button class='button is-primary' (click)='cancel.emit()'>Back</button>
+    <button class='button' [disabled]='!hasPrevious()' (click)='previous()'>👉</button>
+</div>
+
+<div *ngIf='artWork.messages'>
+    <div *ngFor='let message of artWork.messages'>
+        <i>{{ pseudoOrId(message.author) }} :</i> {{ message.text }}
+    </div>
+</div>
+<input *ngIf='!artWork.validated' #newMessage placeholder="type any message here" type="text" (keyup.enter)='sendMessage(artWork.id, newMessage)'
+    style='font-size: 80%;'>
+
+<div *ngIf='artWork.participations'>
+    <h2>Partitipations</h2>
+    <table>
+        <tr *ngFor='let participation of participations' (mouseenter)='filterAuthor=participation.id' (mouseleave)='filterAuthor=null'>
+            <td>{{ participation.pseudo }} : </td>
+            <td> {{ participation.count }}</td>
+        </tr>
+    </table>
+</div>

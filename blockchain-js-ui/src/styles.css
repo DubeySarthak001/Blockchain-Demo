@@ -1,0 +1,156 @@
+#blockchain-nav {
+    background-color: burlywood;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+}
+
+body {
+    background-color: white;
+}
+
+.welcome p {
+    padding-top: .5em;
+    padding-bottom: .5em;
+}
+
+.welcome ul {
+    list-style: circle;
+    padding-left: 1.5em;
+}
+
+.tabs {
+    display: none;   
+}
+
+.tabs.expanded {
+    display: initial;
+}
+
+.artWorks {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+}
+
+.artWorks>*{
+    box-sizing: border-box;
+}
+
+.inventory {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+}
+
+.inventory > * {
+    padding: .3em;
+}
+
+.art-work-icon {
+    width: 1.5em;
+    height: 1.5em;
+}
+
+.artworks-inventory .art-work-icon {
+    width: 5em;
+    height: 5em;
+}
+
+art-work-detail {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+art-work-detail .art-work-icon {
+    width: 80vw;
+    max-width: 80vh;
+    height: 80vh;
+    max-height: 80vw;
+}
+
+art-work-edition #canvas {
+    border:1px solid black;
+    width: 20em;
+    height: 20em;
+}
+
+@media screen and (max-width: 1215px) {
+    art-work-summary canvas {
+        width: 20vw;
+        height: 20vw;
+    }
+
+    art-work-edition canvas {
+        width: 90vw;
+        max-width: 90vh;
+        height: 90vh;
+        max-height: 90vw;
+    }
+}
+
+.inventory>div{
+    border: 1px solid transparent;
+}
+
+.empty{
+    display:none;
+}
+
+art-work-edition .preview-before-validate canvas {
+    width: 50vw;
+    max-width: 50vh;
+    height: 50vh;
+    max-height: 50vw;
+}
+
+@media print {
+    body, figure.artWork-icon, div.artWorks, supply-chain-overview, supply-chain {
+        display: block !important;
+    }
+
+    #blockchain-nav, nav, button, .button, footer, .tabs {
+        display: none !important;
+    }
+
+    art-work-summary canvas {
+        width: 26vw !important;
+        height: 26vw !important;
+    }
+
+    .artWork-card {
+        display: inline-block;
+    }
+
+    .card-image, canvas, art-work-summary {
+        position: relative !important;
+        -webkit-column-break-inside: avoid !important;
+          page-break-inside: avoid !important;
+               break-inside: avoid !important;
+    }
+
+    .card-image canvas {
+        border: 1px dashed grey;
+        padding: .2em;
+    }
+}
+
+.score-icon {
+    margin: .5em;
+}
+
+.score-icon .card-image .art-work-icon {
+    min-width: 50%;
+    height: auto;
+    margin-top: .5em;
+    margin-left: 25%;
+}
+
+.score {
+    text-align: center;
+}

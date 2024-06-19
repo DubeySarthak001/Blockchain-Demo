@@ -1,0 +1,154 @@
+= Blockchain demo
+
+A simple typescript implementation of a Bitcoin-like distributed blockchain consensus algortihm.
+
+The aim is to have a working code base to make demoes and experiments with it.
+
+It has a node with many of the bitcoin concepts implemented, and some more (branches, merches, and so on).
+
+The code woks both on server (NodeJS) and client (browser) environments so it is fit for doing demoes.
+
+A demo application is available at https://blockchain-js.com. It is a chat (web) application using the underlying blockchain as
+the data storage.
+
+== Introduction
+
+This is perfect for showing simple code on how the bitcoin works, so this can be used as a support for demoes.
+
+This program maintains a distributed database accross active nodes, interconnected by the network.
+
+Since this is written in typescript, blockchain nodes can either run on NodeJS or in the browser.
+
+Traditionnal blockchain implemented concepts :
+
+- block chain (data is a list of blocks),
+- block validity,
+- proof of work (proof of stake can also be implementation as well as other algorithms,
+
+Concepts not in Bitcoin (as far as I know)
+
+- branches : like with git, the blockchain structure supports _branches_. There is a master branch
+ called `master`, then any branch can be built on it !
+- block data is in Ordered-JSON.
+
+== Build and run the demo application
+
+Those instructions will allow you to launch the demo application which is a **chat application storing its data on a shared blockchain**.
+This is a web application where _every connected browser is a full blockchain node_.
+All nodes have _their own version_ of the blockchain data and update it when they _receive new blocks they consider valid_.
+They connect each other by relying on a _meeting server_ (included in the project, but separated from it) and have no a priori confidence 
+at all in any of the connected peers. It is also possible to connect to other nodes by specifying a Http WebSocket endpoint.
+The UI allows to create a node, connect to the meeting server, receive blockchain notifications and see blocks data and update the blockchain
+by mining new blocks with adjustable difficulty.
+
+As a prerequisite, for the ui, you need to install angular's cli :
+
+        yarn global add @angular/cli
+
+First you need to build and link projects together.
+
+        cd blockchain-js-core
+        yarn install
+        yarn build
+        yarn link
+        cd ..
+
+        cd blockchain-js-ui
+        yarn link blockchain-js-core
+        yarn install
+        yarn build
+        cd ..
+
+Then to build the three projects (blockchain-js-core and blockchain-js-ui), simply call :
+
+        ./build.sh
+
+To run the demo projects :
+
+        cd blockchain-js-ui/dist
+        # if you had not installed http-server before :
+        yarn global add http-server
+        http-server -p 8080 ./
+
+You can then go with several browsers to `http://localhost:8080/` and you should see 
+the demo application, which is a blockchain distributed amongst all connected nodes 
+in which the client add messages by mining some blocks and transmitting them to peer nodes.
+
+=== Development mode
+
+        cd blockchain-js-ui
+        ng serve
+
+Then open some browsers on `http://localhost:4200`
+
+=== Run a NodeJS blockchain node
+
+To run a blockchain node on NodeJS, go to the blockchain-js-core directory and 
+run `node dist/blockchain-node.js`. This launches a blockchain node on NodeJs. It listens by default on the 9091 TCP port.
+
+Most of the API goes through the web socket at `http://localhost:9091/api`.
+
+There are also some available REST calls you can find in the `blockchain-node.ts` file.
+
+=== Connection between nodes
+
+On the browser, click on the "Add peer" button. This will connect to the NodeJs blockchain node.
+
+If you click on the mine button, you will min a block on the browser. This block gets ingested by the other nodes adn resolves as the new branch head if it embeds a stronger proof-of-work than previously known.
+
+== Documentation
+
+Look first at the `index.ts`, `test.ts` and `blockchain-node.ts`. Those are the _executable_ files.
+
+The main data structure is in `block.ts`.
+
+Node API is in `node-api.ts`.
+
+Implementation of a node is in `node-impl.ts`.
+
+The algorithm for transfering data between nodes is in `node-transfer.ts`.
+
+Other files are more technical (tools, networking, ...)
+
+=== What does the block store for the users ?
+
+A list of JSON data
+
+=== How are blocks identified
+
+A SHA256 hashing function over the Ordered-JSON representation of the block.
+
+==== Ordered-JSON
+
+The idea is to have only **one** valid JSON representation of the data.
+
+In JSON one can write one same object in different equivalent forms. For instance :
+
+[source]
+----
+{
+    "a": 5,
+    "b": 6
+}
+----
+
+and
+
+[source]
+----
+{
+    "b": 6,
+    "a": 5
+}
+----
+
+represent the same data.
+
+This poses a problem because it means that depending on how the data has been JSON serialized,
+it will get to different SHA256 hashs.
+
+So the solution to this is to have a stricter JSON representation where data has ony one representation.
+The only difference with normal JSON is that in Ordered-JSON, the fields object data type are serialized 
+by lexical order.
+
+This means that between the two JSON representations above, only the first is a valid Ordered-JSON representation.

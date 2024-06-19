@@ -1,0 +1,54 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: blockchain-js-ui
+  labels:
+    run: blockchain-js-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: blockchain-js-ui
+  strategy:
+    rollingUpdate:
+      maxSurge: 10
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        run: blockchain-js-ui
+    spec:
+      containers:
+      - name: webserver
+        image: eu.gcr.io/blockchain-js/certbot:arnaud
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blockchain-js-ui
+  labels:
+    run: blockchain-js-ui
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Cluster
+  loadBalancerIP: 34.76.71.57
+  ports:
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 443
+  - name: signal
+    protocol: TCP
+    port: 8999
+    targetPort: 8999
+  - name: http-redirect
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  selector:
+    run: blockchain-js-ui

@@ -1,0 +1,36 @@
+<div *ngIf='!state.hasSupplyChainAccount' class="container">
+    <h2>Waiting for Supply Chain initialization, please be patient...</h2>
+    <div *ngIf='state.loaders'>{{ state.loaders }} loading processes running...</div>
+    <div *ngIf='state.fullNode.transfer.isLoading()'>Local node is receiving and processing new blocks...</div>
+    <div *ngIf='state.smartContract.processing'>Smart Contract component is processing data ({{
+        state.smartContract.processing }})...</div>
+    <div>User : {{ state.user != null ? '✔️' : '❌' }}</div>
+    <div>RSA keys : {{ state.user?.keys != null ? '✔️' : '❌' }}</div>
+    <div>Identity contract : {{ state.hasIdentityContract ? '✔️' : '❌' }}</div>
+    <div>Registered Identity : {{ state.registeredOnIdentityContract ? '✔️' : '❌' }}</div>
+</div>
+
+<div *ngIf='state.hasSupplyChainAccount'>
+    <div class='container'>
+        <div class="score" style='text-align: center;'>
+            <span>You have <b>{{ nbEmojis }}</b> emojis and <b>{{ nbPixels }}</b> pixels.</span>
+            <span *ngIf='nbWinnedItems'>You have winned <b>{{ nbWinnedItems }}</b> items</span>
+            <span *ngIf='nbWinnedItems && position > 1'>
+                and your rank is <b>{{ position }}</b> in {{ nbUsers }} users.
+            </span>
+            <span *ngIf='nbWinnedItems && position == 1'>
+                and congrats because you are the winner! 👏🏆🎉 (in {{ nbUsers }} users)
+            </span>
+        </div>
+    </div>
+    <div *ngIf='!editingArtworkId' class="container is-fluid">
+        <supply-chain-overview (initArtWorkCreation)='initArtWorkCreation()' (editArtWork)='editArtWork($event)'
+            (selectArtWork)='selectArtWork($event)'></supply-chain-overview>
+    </div>
+
+    <div *ngIf='editingArtworkId' class='container'>
+        <art-work-edition *ngIf='isEditableArtWork()' [artWorkId]='editingArtworkId' (validate)='validateArtWork()'
+            (cancel)='cancelArtwork()'></art-work-edition>
+        <art-work-detail *ngIf='!isEditableArtWork()' [artWorkId]='editingArtworkId' (cancel)='cancelArtwork()'></art-work-detail>
+    </div>
+</div>
